@@ -6,8 +6,9 @@ so we have 6 yml files for storage, job and deployment in total.
 Now we will break down each file and explain
 
 1. Storage
-pvc.yml - this is used to creating a PersistentVolumeClaim request to the pod.
-
+pvc.yml - this is used to creating a PersistentVolumeClaim requesting persistent storage from cluster to the pod. Pods can later mount this
+          storage as volume
+ref:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -30,11 +31,11 @@ resources - it has 2 parameters generally (requests and limits). for storage it 
 Note - in local it doesn't matter what we give between ReadWriteOnly and ReadWriteMany since the local is only one pod. It restricts the pod access and not the container access. but if we give ReadOnlyMany, it will restrict the access of local pod too. 
        So even though we jave 3 different job pods, all come under same node as we are running it in local.
 
-Deployment
+2. Deployment
 api-deployment.yml - a deployment type used to deploy spring image built already for extracting data from mongo using mongo interface
 mongo-deployment.yml a deployment type used to deploy mongodb with ClusterIP (default). we can access it through the ports and mongo URI mentioned.
 
-deployment ref:
+ref:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -100,3 +101,50 @@ ports - has protocol, port, targetPort for LoadBalancer. for NodePort, nodePort 
 Note: LoadBalancer stays in pending state for external IP since there is no cloud integration. but the app can be accessed via "minikube service <service_name> --url". this creates a tunnel that gives the url connecting to the node port
       which is automatically assigned by k8s to every deployment. 
       mongo can be connected by other api pods via mongo uri. like mongodb://<username>:<password>@<service_name>:27017/<db>?authSource=<role>
+
+3. Job
+ingestion-job.yml - to clean the raw data and ingest it for pyspark job
+pyspark-job.yml - to get the ingested data and make necessary manipulations and save it as a parquet file for next job
+lead-to-mongo-job.yml - get the processed parquet file and load it to the mongodb
+
+ref:
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pyspark-job
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - name: pyspark
+        image: pyspark:latest
+        imagePullPolicy: Never
+        command: ["/bin/sh", "-c"]
+        args:
+          - "python3 /app/pyspark_advanced_03.py && python3 /app/customer_rfm_02.py"
+        env:
+        - name: PYSPARK_PYTHON
+          value: "/usr/bin/python3"
+        - name: PYSPARK_DRIVER_PYTHON
+          value: "/usr/bin/python3"
+        volumeMounts:
+        - name: pipeline-data
+          mountPath: /app/ingestion/processed_data
+      volumes:
+      - name: pipeline-data
+        persistentVolumeClaim:
+          claimName: pipeline-data
+      restartPolicy: Never
+
+Note: we use batch/v1 because Job come under batch controller which handled run to completion tasks. apps/v1 is used for long running tasks that should always be running.
+
+apiVersion - this is to declare which group of k8s api and its version to be used (to see all api groups use kubectl api-groups)
+kind - here it is Job which implies that it is destined to finish. its like a single task. once it finish, it stops. often used for one time use or batch operations.
+metadata - for naming and information details for the file
+spec - the specification of the kind
+spec.backoffLimit - number of retires if failed before marking it as failed
+spec.template.containers.command - command to be executed after creating the pod
+spec.template.containers.volumeMounts - used to mount the volume identifying by its name and mounting it in the mountPath of the pod
+spec.template.spec.volumes - name of the volume to be initialized and its specs
+spec.template.spec.restartPolicy - Never, OnFailure allowed for Job and CronJob. For Deployment, Always (no need to mention as it is the only option)
