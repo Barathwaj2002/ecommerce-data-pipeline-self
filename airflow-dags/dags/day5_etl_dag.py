@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.operators.bash import BashOperator
-from datetime import datetime
+from datetime import datetime, timedelta
 
 with DAG (
     dag_id="ecommerce_etl",
@@ -10,6 +10,8 @@ with DAG (
 ) as dag:
     ingest= BashOperator(
         task_id="ingest_data",
+        retries=2,
+        retry_delay= timedelta(minutes=2),
         bash_command="""
         kubectl delete job ingestion-job --ignore-not-found &&
         kubectl apply -f /opt/airflow/jobs/ingestion-job.yml &&
@@ -20,6 +22,8 @@ with DAG (
 
     transform= BashOperator(
         task_id="pyspark_transform",
+        retries=2,
+        retry_delay= timedelta(minutes=2),
         bash_command="""
             kubectl delete job pyspark-job --ignore-not-found &&
             kubectl apply -f /opt/airflow/jobs/pyspark-job.yml &&
@@ -29,6 +33,8 @@ with DAG (
 
     load= BashOperator(
         task_id="load_to_mongo",
+        retries=2,
+        retry_delay= timedelta(minutes=2),
         bash_command="""
             kubectl delete job load-mongo-job --ignore-not-found &&
             kubectl apply -f /opt/airflow/jobs/load-mongo-job.yml &&
