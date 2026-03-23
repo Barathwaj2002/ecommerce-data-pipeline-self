@@ -21,3 +21,17 @@ Dataproc clusters keep running and billing even when idle. In production use eph
 
 Why is this better than running PySpark locally?
 for scaling purposes and automatic installations and also reliable cloud storage access, it is lot better than local. but it does have some latency issues while working so it looks little slower (maybe due to trial account or slow internet idk)
+
+What is a BigQuery job and how is it different from a query?
+A bigquery job includes all the tasks like extraction, loading, copying, querying. any single task is called a job. it runs asynchronously and have a unique job id. whereas a query is just execution of an sql statement.
+
+What does load_job.result() do in the Python code?
+It make sures the exection waits until the load_job is complete. 
+CA: Without .result(), the script would exit immediately after submitting the job, not waiting for completion. The load would still happen in the background but you'd have no way to catch errors or confirm success. .result() blocks until the job completes and raises an exception if it fails.
+
+What is partitioning in BigQuery and why does it matter for cost?
+paritioning make query area a lot smaller. like if the partition happens with a date column and the data has 150 rows in a date, it will just search in this 150 rows when the appropriate date is given. thus skipping other thousands of rows that doesn't have this date. there by reducing lot of query time and cost.
+CA: BigQuery charges by bytes scanned. Partitioning reduces bytes scanned by skipping irrelevant partitions entirely. A query on 1 day's partition out of 365 days scans 1/365th of the data — direct cost reduction.
+
+What is clustering in BigQuery and how is it different from partitioning?
+it organize data inside each partition with respect to any column other than partitioned one. it will lead to having similar values in a column of a partition and sort in a way that are closely similar values leading to faster search and reduced power consumption (cheaper)
