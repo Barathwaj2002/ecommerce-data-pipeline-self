@@ -1,0 +1,37 @@
+What is the difference between git add and git commit?
+git add requires arguments (file names or folders). it will add those arguments to the staging area.
+git commit will commit (like a snapshot in the git history) those files added in the staging area.
+
+Every commit in git stores 4 types of objects in .git/objects/ - blob, tree, commit, tag.
+
+What is a Git hash and what is it based on?
+git has is a cryptographic hashed version of the combination of the content, file type & size and running it through SHA-256
+
+If you commit the same file content twice, does Git store it twice?
+no. it will compared against the last commit and if it is exactly the same, it will return "nothing to commit".
+more like it will compare the has of the file. if the hash is same, it will do nothing.
+
+What is HEAD in Git?
+it is the pointer to the current branch and latest commit usually unless changed with git checkout. like if we commit, it will make the changes on top of the HEAD
+and moves the head to the latest commit.
+
+What is a branch in Git — is it a copy of the code?
+i guess its a replica of a code under a different tree in git. we can use it for different purposes for dev, prod, testing, etc... 
+
+What does detached HEAD mean?
+it means the HEAD is in an older commit and further changes will be done on top of that. but it wouldn't affect the latest commit.
+*it directly points to a commit instead of branch. new commits made here does not belong to any branch unless one is made. 
+
+Why does Git have a staging area at all? What problem does it solve?
+there is always a possibility of having unnecessary files in a project after cloning. like if we open it in an IDE, there will be some IDE specific config files
+that is not required to be on git. staging resolves this problem. it will consider the files to be related to git only when the changed file is specified with git add
+so that even if there are many other files, it will be untracked and only the files added via git add goes to the staging area which is eligible to commit.
+
+What does git reset HEAD <file> do?
+it will remove the aforementioned file from the staging area and it will be back to untracked status.
+
+What does git stash actually do internally?
+it is like a saved version of unsaved files that can be saved later if required. using stash wont affect commit history. it is for work in progress files usecase. we can just clear the stash entirely if not required. or just apply it to save them in working dir and use git add for moving to staging area.
+
+When would you use stash vs creating a branch?
+creating branch is for actual files and not working ones. it doesn't solve the problem of recording the movements in the history and it will create chaos. branch will still point to a commit whereas stash is just a bunch of saved changed without any history. branch will also affect existing files.
