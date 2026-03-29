@@ -38,3 +38,5 @@ it is like a saved version of unsaved files that can be saved later if required.
 When would you use stash vs creating a branch?
 creating branch is for actual files and not working ones. it doesn't solve the problem of recording the movements in the history and it will create chaos. branch will still point to a commit whereas stash is just a bunch of saved changed without any history. branch will also affect existing files.
 *Use stash when you need to quickly context-switch and come back to the same work later — temporary parking spot. Use branch when the work is significant enough to have its own history and might be reviewed or merged by others.
+
+rebase verify
