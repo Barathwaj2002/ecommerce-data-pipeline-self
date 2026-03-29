@@ -39,4 +39,18 @@ When would you use stash vs creating a branch?
 creating branch is for actual files and not working ones. it doesn't solve the problem of recording the movements in the history and it will create chaos. branch will still point to a commit whereas stash is just a bunch of saved changed without any history. branch will also affect existing files.
 *Use stash when you need to quickly context-switch and come back to the same work later — temporary parking spot. Use branch when the work is significant enough to have its own history and might be reviewed or merged by others.
 
-rebase verify
+What is the difference between merge and rebase?
+merge will merge the commits of the target branch with existing one along with the history too... leaving many under conflicts if any. now both history of commits and latest commit will be merged.
+rebase just overlaps all the commits of the target branch over the current's latest commit resulting is no conflicts but a lot of commit history
+
+When would you use each in a team?
+in a team if we're working on different tasks, we use merge. if another team wants to takeover the existing one, the can do rebase.
+
+What is fast-forward merge?
+if there are 2 branches where 1 got diverged from another and if we proceed to make changes in the diverged branch... after some commits, we want it to be merged with the source branch and if there was no commits done in the source till now, it will make fast-forward where all those commits will be added to the source branch and pointed moved to the latest of source branch. if we strictly want the history along with it (the merge history and the branch history), we can use --no-ff flag to avoid fast-forwarding.
+
+When would you use cherry-pick in a real project?
+when i want to get a particular commit and not other history or future related to that. let's say there are multiple versions of an app and a particular version is the most stable one, and we want to get that we can use cherry-pick.
+
+What's the risk of cherry-picking frequently?
+the risk of cherry-pick when used frequently is that we may lose track of history and a lot of confusion may arrive in the main branch between versions.
