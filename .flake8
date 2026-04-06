@@ -1,0 +1,37 @@
+[flake8]
+max-line-length = 120
+exclude =
+    dbt_packages,
+    target,
+    .git,
+    airflow-dags/dags/practice_dag_*.py,
+    airflow-dags/dags/xcom_test_dag.py,
+    airflow-dags/dags/sensor_test_dag.py,
+    airflow-dags/dags/task_groups_dag.py,
+    airflow-dags/dags/variables_test_dag.py,
+    airflow-dags/dags/complex_dag.py,
+    airflow-dags/dags/producer_dag.py,
+    airflow-dags/dags/consumer_dag.py,
+    airflow-dags/dags/parent_dag.py,
+    airflow-dags/dags/child_dag.py
+ignore =
+    E302,
+    E305,
+    E225,
+    E231,
+    W292,
+    W293,
+    W291,
+    E123,
+    E126,
+    E121,
+    W391,
+    E251,
+    E211,
+    E303,
+    E306,
+    E221
+per-file-ignores =
+    processing/*.py: F401,F811
+    storage/*.py: F401
+    gcp_pipeline/*.py: F401,F541
