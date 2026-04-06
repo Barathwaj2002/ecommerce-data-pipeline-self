@@ -1,0 +1,19 @@
+A ci-cd.yml defines how the pipeline operates with:
+workflow name: a label to identify the pipeline
+triggering events: specify actions to trigger the workflow
+jobs: define the tasks (like building or testing)
+permissions: grant appropriate access levels to resources in repo
+
+sample:
+
+name: sample-pipeline
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3

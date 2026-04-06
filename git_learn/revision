@@ -1,0 +1,126 @@
+What is the difference between merge and rebase — when to use each?
+merge will take the starting point of both branches as reference, combine all changes of both branches and merge with current one. rebase will run all the commits of the target branch one by one over the current one.
+
+What does git reset --soft, --mixed, --hard do?
+--soft will uncommit the latest commit but all the changes will more to staging area
+--mixed will uncommit the latest commit and also remove all the changes from the staging area so we should add everything again one by one
+--hard will uncommit and delete all the changes including in the local
+
+What is git revert and why is it safer than reset on shared branches?
+git revert will uncommit the changes but without affecting the history. like it will create a new commit that has changes that uncommits the latest commit on top of it.
+
+What is git reflog and when would it save you?
+reflog will have all changes and deleted changes and everything for 30 days. even if we delete something by mistake we can recover it using reflog. its like a black box for git.
+
+What does git stash do internally?
+git stash doesn't commit any changes instead it stores all changes as temporary in the git. we can add as many changes we want using stash. if those are required we can apply the particular stash and add it to staging area. or just use stash pop to delete the stash.
+
+What is a fast-forward merge?
+fast forward merge is where if there is no changes in one branch from the branching point and when we tried to merge it with another, it will just move the pointer to the latest commit of the target branch.
+
+What does squash do in interactive rebase?
+squash will combine git commits. we can use git rebase-i HEAD~3 to combine last 3 commits. 
+or git merge --squash target_branch to squash all commits.
+
+What is the difference between GitFlow and trunk-based development?
+GitFlow uses long lived branches like feature, release, hotfix, develop, master/main to manage the project. it is used where the project requires scheduled releases and incremental updates. 
+trunk-based just make changes in the main branch and if required short lived branches are created. 
+
+What is a Pull Request and what problem does it solve?
+pull request is used when we have new features or changes in separate branch and want to merge it with the main after approval from the team with code review.
+
+What algorithm does git bisect use and why is it efficient?
+it uses binary search algorithm where we start the bisect and mark good and bad commits, it will point to the middle commit first and ask if its good or bad. subsequently it will do the same till the last bad is found which would be the origin of the defect.
+
+# 1. Create a branch, make 3 commits, squash into 1 with interactive rebase
+git checkout -b new_branch
+echo "commit1" > commit1.txt
+git commit -m "1st commit"
+echo "commit2" > commit2.txt
+git commit -m "2nd commit"
+echo "commit3" > commit3.txt
+git commit -m "3rd commit"
+git rebase -i HEAD~3
+pick 1stcommit_hash 1st commit
+squash 2ndcommit_hash 2nd commit
+squash 3rdcommit_hash 3rd commit
+
+# 2. Cherry-pick a specific commit from another branch
+git cherry-pick -n commit-hash
+
+# 3. Recover a deleted branch using reflog
+git reflog
+<find the deleted branch hash>
+git checkout -b branch_name deleted_branch_commit_hash
+
+# 4. Create a conflict, resolve it, complete the merge
+git checkout -b new_branch
+echo "commit1" > file1.txt
+git checkout main
+git commit -m "1st commit"
+echo "commit2" > file1.txt
+
+conflict happens. remove >, =, HEAD, branch_names, save and conflict resolved
+
+# 5. Revert the last commit without deleting history
+git revert HEAD (or git revert commit_hash to revert specific commit)
+
+What does Cloud Composer manage that standalone Airflow doesn't?
+the cloud composer authentication issues(secret key), yml configurations, rbac things, more refined dag serialization, auto scaling, computing, network, auto installs the dependencies in requirements.txt.
+
+Why is PostgreSQL better than SQLite for Airflow in production?
+SQLite doesn't run on servers and is very basic compared to PostgreSQL. including the mvcc and many things postgres is better and for airflow postgres is the gold standard.
+
+How are DAGs deployed in Composer vs minikube Airflow?
+in minikube, we mount the local dags path to the /opt/airflow/dags. everytime we start the deployment, it will take the dags with the mounted folder. or we can exec into the container and copy files while the app is running. 
+in composer, a bucket is created automatically by the composer. we have dags folder inside and we can copy it directly there. it will check the folder every 1-2 mins and update the dags.
+
+What is trigger_rule=ALL_DONE and why did we use it on delete_cluster?
+if we give ALL_SUCCESS, the cluster would get deleted only of all are successful. and will still be running costing credits. ALL_DONE will delete the cluster even if some tasks are failed. 
+
+What is {{ ds_nodash }} and why did we use it in the cluster name?
+normal ds will give logical date and time with hyphens. ds_nodash will elimiate those hypens. this will give cleaner name for the cluster in our use.
+
+Why do we use ephemeral clusters instead of permanent ones?
+so that it will be deleted after job is done and computing and storage costs will be saved. also for scaling this is better.
+
+Why can't dbt run inside Composer? What's the production solution?
+dbt and airflow have a lot of version mismatch complexities. we could make it work with some effort but it is not much reliable. so we can use cloud run to make dbt task work after composer complete its job.
+
+What is the difference between DataprocCreateClusterOperator and DataprocSubmitJobOperator?
+DataprocCreateClusterOperator - an api to create cluster with the given cluster config.
+DataprocSubmitJobOperator - an api to sumbit the job config with task id (pyspark job or hadoop)
+
+Full GCP pipeline self-test:
+What happens in each step
+first, we setup the gcp bucket to store the python files and raw data. then we configure the composer with dependencies like pyarrow, pandas and gcp related dependencies. once it sets up, the composer creates  its own bucket in the cloud storage with relevant folders. we then store our dag file in the dags folder and open the airflow UI. we trigger the dag and it  will run the tasks according to the dag file including cleaning raw data, doing pyspark transformation in it using dataproc clusters, loading the result to the bigquery.
+
+Which GCP service handles it
+composer which support airflow implementation.
+
+Where data lives after each step
+we have the raw data in the bucket. During ingestion, the python file take in raw data, cleans it and save output in the bucket (as we mentioned in the file), then pyspark cluster will take the cleaned data back from the bucket and manipulate and load the output to the bucket again. then the stored output is then loaded to bigquery.
+
+What would fail if you skipped each step
+if ingestion fails, pyspark can't  find the cleaned data or will manipulate old cleaned ones. 
+if pyspark fails, the bigquery loading doesn't happen or  it moves the old data again.
+if loading to bigquery fails, the data wouldn't be in the bigquery and we can't do queries there or any dbt manipulations.
+
+What is the nanosecond timestamp bug and how did you fix it?
+the pandas function store the output file with the nanosecond timestamp. but the  spark only support microseconds timestamp. so we force pandas to store as microseconds using "coerce_timestamps="us""
+
+What GCP naming conventions did you learn?
+unlike other softwares which allows _, gcp only takes - instead. gcs bucket names should be globally unique, in bigquery _ are allowed, usage of standard region codes. 
+
+What is coerce_timestamps='us' and when do you use it?
+already answered above
+
+What Git concepts are still shaky?
+stash maybe... mix of merge, cherry-pick... i understood most of the concepts but not confident enough to handle anything and everything in git. but can manage mostly.
+
+What Composer/GCP concepts are still shaky?
+the CLI commands are a bit shaky. can do with the GCP UI. need practice with CLI commands though. but i understand the concepts overall.
+and we didn't touch any netowrking in gcp. also the IAM concepts are bit vague. 
+
+Any commands you still need to look up?
+idk i can understand the commands but have to look up when we implement them with granular control.
