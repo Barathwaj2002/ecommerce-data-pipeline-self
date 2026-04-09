@@ -17,3 +17,58 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v3
+
+What is the difference between a workflow, job, and step?
+workflow: the entire yml file, triggered by an event
+job: a group of steps running on a runner, multiple jobs run in parallel by default
+step: a set of actions to be executed (sequential so a task at a time)
+
+What is a runner and what does ubuntu-latest mean?
+a runner is a VM requested to git for running tasks. ubuntu-latest means the uses is given as ubuntu-latest which will request  for a small VM with ubuntu of latest version to run the actions on it.
+
+What is the difference between run and uses?
+run will execute whatever given in it as a CLI command. uses will look for default actions in the github marketplace matching the mentioned one.
+
+What does needs do between jobs?
+needs is like an if condition to trigger the particular job usually pointing at other jobs (like wait for the successful completion of that job)
+
+What is the difference between push and pull_request trigger?
+push trigger will trigger the action when there is a push in the repo. pull_request will trigger the actions whenever there is a pull request (opened, reopened, synchronized as per the condition given here)
+
+What are GitHub Secrets and how are they different from env vars?
+github secrets are like a locker for passwords which we enter manually in the repo settings. it is fetched from the git only when required unlike env vars which is exposed as an environment variable.
+
+What does actions/checkout do and why is it always first?
+without actions/checkout, there will be no files inside the ubuntu system. so there will be nothing to run without checking out the files.
+
+What is actions/setup-python doing under the hood?
+it will call for installing python with the version mentioned in the ubuntu system.
+
+What happens when a step fails — do subsequent steps run?
+yes, other steps run even when previous is failed unless needs is used there. 
+
+Why do we use dbt deps before dbt test in CI?
+if there are external packages used, dbt deps will download them. if we didn't do dbt deps when having external packages, dbt test will fail. 
+
+# 1. Squash last 4 commits into 1
+git rebase -i HEAD~4
+
+# 2. Cherry-pick a specific commit hash onto current branch
+git cherry-pick <commit_hash>
+
+# 3. Recover a deleted branch using reflog
+git reflog (note the deleted branch commit hash)
+git checkout -b branch_name commit-hash
+
+# 4. See full history including deleted branches and resets
+git reflog
+
+# 5. Revert a specific commit without deleting history
+git revert commit-hash
+
+# 6. Create a branch, make changes, raise a PR flow
+git checkout -b branch_name
+git add .
+git commit -m "change done"
+git push origin branch_name
+go to github and raise new PR from pull request tab. or gh pr create --base=(target branch) --head=(current branch) --title=pr_title --body=pr_desc
