@@ -1,0 +1,19 @@
+What is the difference between logger.error("msg: %s", e) and logger.error(f"msg: {e}")?
+both are essentially the same functionality but the first one is called lazy formatting and it evaluates the values inside only when this logger is emitted whereas the second one evaluates immediately even if that logger is ignored.
+
+What does exc_info=True do?
+it will include the location of the error and its full details.
+
+Why use __name__ as logger name?
+so that it will get the module(file) name.
+
+What is the difference between logging.info() and logger.info()?
+logging is the root function of the logging import. there will be no module name or no configuration. 
+logger will include the name of the module and all set configs.
+
+When would you use WARNING vs ERROR level?
+warning is when a problem is found but it doesn't affect the run of the application. 
+error is when it will cause disruption to the run.
+
+What is structured logging and why do cloud platforms prefer it?
+structured logging are preferred since it is machine readable, can be queried in cloud and also helps a lot with analytics and stuffs... 

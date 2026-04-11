@@ -46,6 +46,9 @@ it will call for installing python with the version mentioned in the ubuntu syst
 
 What happens when a step fails — do subsequent steps run?
 yes, other steps run even when previous is failed unless needs is used there. 
+*wrong. 
+By default subsequent steps DO NOT run when a previous step fails — the job stops at the failed step. 
+You need if: always() to force a step to run after failure. needs is between jobs, not steps.
 
 Why do we use dbt deps before dbt test in CI?
 if there are external packages used, dbt deps will download them. if we didn't do dbt deps when having external packages, dbt test will fail. 
