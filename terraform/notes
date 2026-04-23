@@ -1,0 +1,18 @@
+What is the difference between terraform plan and terraform apply?
+terraform plan: displays the blueprint of all the creations, deletions, modifications the terraform files are going to do
+terraform apply: execute the blueprint
+
+What is the state file and what happens if you delete it?
+it keeps track of all the resources, providers, service accounts. if we delete it, it will recreate everything again when we apply again and cause several issues.
+*If you delete the state file, Terraform loses track of what it already created. Running terraform apply again will try to create everything from scratch — but the resources already exist on GCP, causing conflicts and errors like 'resource already exists'. The state file is the source of truth between your config and real infrastructure.
+
+What is the difference between a resource and a variable in Terraform?
+resource is for creating the cloud resources like a bq asset, bucket, dataproc cluster, etc...
+variable are like env variables. we can either assign default value or assign while applying the terraform
+
+What is idempotency in Terraform — what does it mean practically?
+running same config multiple time will change nothing as the desired state is already achieved. its like git. every change is incremental or decremental as per requirement. not replacing.
+
+Why is force_destroy = true on the bucket important?
+the terraform creates many resources as per the config. if we don't destroy, all resources will start charging credits.
+*GCS buckets can't be deleted if they contain objects. Without force_destroy = true, terraform destroy will fail if the bucket has any files in it. force_destroy = true tells Terraform to delete all objects in the bucket before deleting the bucket itself.
