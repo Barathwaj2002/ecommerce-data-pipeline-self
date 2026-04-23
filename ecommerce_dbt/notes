@@ -35,7 +35,6 @@ What's the difference between strategy='timestamp' and strategy='check'?
 timestamp uses updated_at column to get the latest values and mark if its valid or not. if there is a change, it inserts a newer version.
 check uses check field in the snapshot file and check the mentioned columns for changes ('all' for all columns)
 both updates the dbt_valid_from, dbt_valid_to columns for version history
-*dbt build = dbt seed + dbt run + dbt snapshot + dbt test in dependency order. It's the production command — single command to execute and validate the entire pipeline.
 
 What is the difference between dbt run, dbt test, and dbt build?
 dbt run: runs the table, incrementals, view.
