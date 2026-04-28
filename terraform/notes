@@ -16,3 +16,22 @@ running same config multiple time will change nothing as the desired state is al
 Why is force_destroy = true on the bucket important?
 the terraform creates many resources as per the config. if we don't destroy, all resources will start charging credits.
 *GCS buckets can't be deleted if they contain objects. Without force_destroy = true, terraform destroy will fail if the bucket has any files in it. force_destroy = true tells Terraform to delete all objects in the bucket before deleting the bucket itself.
+
+What is a Terraform module and why is it better than copy-pasting config?
+module is like docker images for cloud (in terms of the end goal). same config across systems so that no one face any compatible issues. here we can define the config of all cloud resources so that we can share with other devs and they can get the exact same config.
+*Modules also enforce consistency — if 10 teams all use the same GCS bucket module, they all get the same labels, lifecycle rules, and force_destroy settings automatically. No one forgets to set a critical config.
+
+What is the difference between local state and remote state?
+local state is when terraform.tfstate is present in the local machine. it is only useful for the user of the host. remote state is when we have the file in the cloud and manage the terraform state from the bucket. so when anyone who applies with terraform apply, they will get latest state.
+*Without locking, two people running terraform apply simultaneously can corrupt the state file — both read the same state, both make changes, one overwrites the others changes. GCS backend supports locking automatically
+
+What is state locking and why does it matter in a team?
+it prevents 2 users from applying new state simultaneously
+
+Why do we run terraform plan in CI on PRs and not terraform apply?
+so that we get the plan first discussed by everyone before applying it. get approval and clear any miscellaneous doubts or mistakes
+*Also terraform apply in CI would require elevated permissions and could accidentally destroy production infrastructure. Plan is read-only — it just shows what would happen.
+
+What does terraform init do when you add a new module?
+it will prepare the env for applying. like downloading the resources, building the dependency graph, etc...
+*It downloads the module source if its a remote module (from Terraform registry). For local modules like ./modules/gcs_bucket it just registers the path.
