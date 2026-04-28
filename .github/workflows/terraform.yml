@@ -23,6 +23,9 @@ jobs:
             - name: Terraform init
               run: terraform init
               working-directory: terraform
+            - name: Fix provider permissions
+              run: chmod -R +x .terraform/providers/
+              working-directory: terraform
             - name: Terraform plan
               run: terraform plan
               working-directory: terraform
